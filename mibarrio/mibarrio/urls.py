@@ -16,7 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings            #Importo aqui
+from django.conf.urls.static import static  #importo aqui tambien
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+]+static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) #Agrego esta linea y las importaciones anteriores para visualizar
+                                                                 # imagenes en el portal del admin
