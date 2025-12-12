@@ -48,6 +48,11 @@ INSTALLED_APPS = [
     'mbbackend.apps.MbbackendConfig',
     'mbfrontend.apps.MbfrontendConfig',
 
+#Django third party apps
+    'django_cleanup.apps.CleanupConfig',
+    'rest_framework',
+    'rest_framework_gis',
+
     
 ]
 
