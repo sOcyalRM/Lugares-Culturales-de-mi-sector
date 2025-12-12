@@ -13,7 +13,7 @@ class SerializadorLugar(GeoFeatureModelSerializer):
 
     class Meta:
         model = Lugar
-        campo_geo = 'punt_geom'
+        geo_field = 'punt_geom'
 
         fields = (
             'pk',

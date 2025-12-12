@@ -22,5 +22,6 @@ from django.conf.urls.static import static  #importo aqui tambien
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/', include('mbbackend.urls')),
+    path('', include('mbfrontend.urls')),
 ]+static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT) #Agrego esta linea y las importaciones anteriores para visualizar
                                                                  # imagenes en el portal del admin
