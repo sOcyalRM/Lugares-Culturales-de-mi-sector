@@ -1,5 +1,28 @@
 {% extends './base.html' %}
+{% load static %}
+{% block css_links %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+<link rel="stylesheet" href="{% static 'libs/leaflet/leaflet.css' %}">
+{% endblock %}
+
+{% block js_links %}
+<script src="{% static 'js/main.js' %}"></script>
+<script src="{% static 'libs/leaflet/leaflet.js' %}"></script>
+
+{% endblock %}
 
 {% block content %}
-    <h1> Hello world!!</h1>
+<div class="grid-container">
+    <div class="grid-1">
+        <div id="map"></div>
+    </div>
+    <div class="grid-2">
+        <div class="column-menu" id="menu-information">
+            <p id="menu_title"> Bienvenidos al mapa con los lugares populares de mi localidad </p>
+            <img src="./media/imagen_lugares/Cristo-Redentor.jpg" alt="Imagen Cementerio" id="imagenlugar">
+            <p id="menu_text"></p>
+        </div>
+    </div>
+</div>
+    
 {% endblock %}

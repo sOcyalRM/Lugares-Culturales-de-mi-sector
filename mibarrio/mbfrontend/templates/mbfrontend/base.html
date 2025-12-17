@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>{% block title %}Lugares importantes de mi cominidad {% endblock %}</title>
+    <!-- CSS --> 
+    {% block css_links %} {% endblock %}
 </head>
 <body>
-    {% block content %} {% endblock %}
+    <!-- JS -->
+    {% block js_links %} {% endblock %}
+
+    <div>
+        {% block content %} {% endblock %}
+    </div>
+    
 </body>
 </html>

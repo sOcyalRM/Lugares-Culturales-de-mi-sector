@@ -1,0 +1,62 @@
+*{
+    box-sizing: border-box;
+}
+
+body{
+    padding: 0;
+    margin: 0;
+    overflow: auto;
+}
+
+#map {
+    height: 100vh;
+    width: 55vw;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 55vw 45vw;
+    grid-template-rows: 100vh;
+}
+
+/* Columns */
+.grid-1 {
+    height: 100%;
+    width: 100%;
+}
+
+.grid-2 {
+    height: 100%;
+    width: 100%;
+}
+
+.column-menu{
+    height: 100%;
+    width: 100%;
+    padding: 1px;
+    background-color: #e2e2;
+}
+
+.menu_title{
+    margin: 0;
+    padding: 40px;
+    width: 100%;
+    height: 20%;
+    text-align: center;
+    font-size: 28px;
+}
+
+#imagenlugar{
+    width: 100%;
+    height: 60%;
+    border-radius: 10px;
+}
+
+.menu_text{
+    margin: 0;
+    padding: 10px;
+    width: 100%;
+    height: 20%;
+    text-align: left;
+    font-size: 22px;
+}
