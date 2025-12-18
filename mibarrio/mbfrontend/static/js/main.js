@@ -118,6 +118,53 @@ const addAllPlacesToMap = (json) => {
 
 fetchGetRequest('api/v1/lugares', addAllPlacesToMap)
 
+//SECCION AGREGAR GEOJSON
+
+
+function addGeoJSONData(data, layername){
+      
+    let geoJSONLayer = L.geoJSON(data,{
+        onEachFeature: function (feature, layer) {
+        // Bind a label directly on top of the geometric feature 
+        layer.bindTooltip(feature.properties.name, { // Crea un recuadro que muestra el nombre del poligono
+            permanent: true,        // Keep label always visible
+            direction: 'center',    // Position the label in the center of the shape
+            className: 'geojson-label',  // Custom class for styling
+            padding: 0,
+            //opacity: 0.3,  
+        });
+    },      
+
+
+    }).addTo(map)
+}  
+
+function fetchData(url, layername){
+    fetch(url, {
+      method:'GET',
+      mode: 'same-origin'
+  })
+      .then(function(response){
+          if (response.status === 200){
+              return response.json(response)
+          } else {
+              throw new Error('Fetch API could not fetch the data')
+          }
+      })
+      .then(function(geojson){
+          addGeoJSONData(geojson, layername) //Para layername revisar geojson part 3 minuto 4
+      })
+      .catch(function(error){
+          console.log(error)
+      }) 
+  }
+
+
+
+
+
+fetchData('./static/geojson/comunidad.GeoJSON', 'Mapa de Los Girasoles')
+
 
 }
 
