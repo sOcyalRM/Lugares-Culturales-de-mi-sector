@@ -60,3 +60,14 @@ body{
     text-align: left;
     font-size: 22px;
 }
+
+/*Tooltip leaflet */
+/* Elimina el background del recuadro tooltip que muestra el nombre/numero del edificio */
+.geojson-label {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: black; /* Or any color you prefer */
+    /*font-size: 10px;
+    transform: none;*/
+  }

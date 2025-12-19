@@ -39,6 +39,8 @@ const selectedPointStyle = {
     fillOpacity : 1,
 }
 
+
+
 stylesGeoJSONOnClick = (lugares) =>{
     let lastClickedFeature; // Cuando se define una variable como let, puede ser usada solo localmente dentro del margen{} declarada
     lugares.on ('click', e =>{
@@ -100,6 +102,30 @@ onEachFeatureHandler = (feature, layer) =>{ //feature me permite manejar los ele
     })
 }
 
+
+
+
+////////////// latlng no esta siendo reconocida
+const zoomMarker = 18;
+circleMarkerHandler = (feature, latlng) => {
+        const zoom = map.getZoom();
+        if (zoomMarker >= zoom && todosMarcadores){
+            map.removeLayer(todosMarcadores)
+
+        }
+        let todosMarcadores = L.geoJSON(json,{
+            pointToLayer: function(feature, latlng){
+                return L.circleMarker(latlng, pointStyle)
+            }
+        })//.addTo(map)
+}
+
+
+
+
+
+
+
 const addAllPlacesToMap = (json) => {
     let lugares = L.geoJSON(json, { // L.geoJSON es una funcion de la biblioteca L debe ser declarado sin error ortografico
         pointToLayer: function(feature, latlng){
@@ -107,6 +133,7 @@ const addAllPlacesToMap = (json) => {
         },
         onEachFeature: (feature,layer) => { //onEachFeature es una una funcion de la biblioteca Leaflet
             onEachFeatureHandler(feature, layer)
+            circleMarkerHandler(latlng,pointStyle)
         }
     }).addTo(map)
  
@@ -118,28 +145,12 @@ const addAllPlacesToMap = (json) => {
 
 fetchGetRequest('api/v1/lugares', addAllPlacesToMap)
 
-//SECCION AGREGAR GEOJSON
 
 
-function addGeoJSONData(data, layername){
-      
-    let geoJSONLayer = L.geoJSON(data,{
-        onEachFeature: function (feature, layer) {
-        // Bind a label directly on top of the geometric feature 
-        layer.bindTooltip(feature.properties.name, { // Crea un recuadro que muestra el nombre del poligono
-            permanent: true,        // Keep label always visible
-            direction: 'center',    // Position the label in the center of the shape
-            className: 'geojson-label',  // Custom class for styling
-            padding: 0,
-            //opacity: 0.3,  
-        });
-    },      
+//SECCION AGREGAR GEOJSON ESTATICO A MAPA
 
-
-    }).addTo(map)
-}  
-
-function fetchData(url, layername){
+var layername;
+ function fetchData(url, layername){
     fetch(url, {
       method:'GET',
       mode: 'same-origin'
@@ -160,11 +171,102 @@ function fetchData(url, layername){
   }
 
 
+function addGeoJSONData(data, layername){
+      
+    let geoJSONLayer = L.geoJSON(data,{
+            onEachFeature: function (feature, layer) {
+            // Bind a label directly on top of the geometric feature 
+            layer.bindTooltip(feature.properties.name, { // Crea un recuadro que muestra el nombre del poligono
+                                                        //En el corchete puede agregarle propiedades incluso de html a tooltip
+                permanent: true,        // Keep label always visible
+                direction: 'center',    // Position the label in the center of the shape
+                className: 'geojson-label',  // Custom class for styling //Para manejar en archivo css
+                padding: 0,
+                //opacity: 0.3,  
+            });
+        },      
+
+
+    }).addTo(map) // Funcion tomada de proyecto anterior con modificaciones
+    geoJSONLayer.bindPopup(function(layer){ //Al hacer clic en el poligono saldra un popup con el nombre del poligono
+        return layer.feature.properties.name;
+    })
+
+    const minZoomToShow = 16;
+    //Polygon Style
+    var PolygonStyle = {
+    color: 'orange',
+    fillColor: 'orange',
+    fillOpacity: 0.5
+    }
+
+    function updateGeoJSONTooltips() {
+        const zoom = map.getZoom();
+        geoJSONLayer.eachLayer(layer => {
+          if (layer.getTooltip && layer.getTooltip()) {
+            if (zoom < minZoomToShow && layer.isTooltipOpen()) {
+              layer.closeTooltip();
+            } else if (zoom >= minZoomToShow && !layer.isTooltipOpen()) {
+              layer.openTooltip();
+            }
+          }
+        });
+    }
+
+    function updatePolygonStyle() {
+        const zoom = map.getZoom();
+        if (zoom < minZoomToShow) {
+            geoJSONLayer.setStyle({
+            color: 'transparent',
+            fillColor: 'transparent',
+            fillOpacity: 0
+            });
+        } else {
+            geoJSONLayer.setStyle(PolygonStyle);
+        }
+    }
+
+     map.on('zoomend', updatePolygonStyle);
+     map.on('zoomend', updateGeoJSONTooltips);
+
+     //updateGeoJSONTooltips();
+
+
+}           //End of ADDGeoJson function
 
 
 
-fetchData('./static/geojson/comunidad.GeoJSON', 'Mapa de Los Girasoles')
+  //Implementando controles del mapa
+  L.control.scale({
+    imperial: false
+  }).addTo(map); //Para mostrar altura en metros en esquina inferior izquierda
+
+  //Obteniendo la locacion del usuario
+  map.locate({
+    setView: true,
+    maxZoom: 16
+  })
+
+   // Cuando se encuentra la locacion
+   map.on ('locationfound', function(e){
+    L.marker(e.latlng).addTo(map)
+      .bindPopup(`Tu estas aqui: <br>Latitud: ${e.latlng.lat.toFixed(5)}<br>Longitud: ${e.latlng.lng.toFixed(5)}`)
+    //.openPopup(); //Al encontrar mi locacion muestra un mensaje en pin
+     
+    L.circle(e.latlng, { radius: e.accuracy }).addTo(map); // Con esto se dibuja un circulo en el area donde me localizo
+  });
+
+
+
+fetchData('./static/geojson/comunidad.GeoJSON', 'MapaGirasoles')
 
 
 }
 
+/*const miAtribucion =  L.control.attribution ({ // Para mover mensaje de atribucion del mapa(creditos)
+  position: 'bottomleft'
+});
+
+miAtribucion.addAttribution('Mi capa en cima');
+
+miAtribucion.addTo(mymap);*/
