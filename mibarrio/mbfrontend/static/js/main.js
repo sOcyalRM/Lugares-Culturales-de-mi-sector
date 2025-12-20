@@ -106,23 +106,20 @@ onEachFeatureHandler = (feature, layer) =>{ //feature me permite manejar los ele
 
 
 ////////////// latlng no esta siendo reconocida
-const zoomMarker = 18;
-circleMarkerHandler = (feature, latlng) => {
+const zoomMarker = 16;
+circleMarkerHandler = ( latlng, pointStyle) => {
         const zoom = map.getZoom();
+        let todosMarcadores;
         if (zoomMarker >= zoom && todosMarcadores){
             map.removeLayer(todosMarcadores)
-
         }
-        let todosMarcadores = L.geoJSON(json,{
+
+            todosMarcadores = L.geoJSON(json,{
             pointToLayer: function(feature, latlng){
                 return L.circleMarker(latlng, pointStyle)
             }
-        })//.addTo(map)
+        })//addTo(map)
 }
-
-
-
-
 
 
 
@@ -130,10 +127,17 @@ const addAllPlacesToMap = (json) => {
     let lugares = L.geoJSON(json, { // L.geoJSON es una funcion de la biblioteca L debe ser declarado sin error ortografico
         pointToLayer: function(feature, latlng){
             return L.circleMarker (latlng, pointStyle) //circleMarker es una funcion de la biblioteca L
+            const zoom = map.getZoom();
+            let misMarcadores =  L.circleMarker (latlng, pointStyle);
+            if ( zoom < zoomMarker  ){
+                map.removeLayer(misMarcadores)
+            } else if(zoom >= zoomMarker){
+            
+             }
         },
         onEachFeature: (feature,layer) => { //onEachFeature es una una funcion de la biblioteca Leaflet
             onEachFeatureHandler(feature, layer)
-            circleMarkerHandler(latlng,pointStyle)
+            //circleMarkerHandler(layer, pointStyle)
         }
     }).addTo(map)
  
