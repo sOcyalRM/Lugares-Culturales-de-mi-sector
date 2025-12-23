@@ -19,6 +19,8 @@ const fetchGetRequest = async (url, funcion) => {
     
 }
 
+
+////////////// PARA ESTILO PRINCIPAL DE LOS MARCADORES REDONDOS ///////////////
 const pointStyle = { //Una ves declarada una variable como const su valor no puede cambiar si se usa el operador ()=) en otra operacion
     stroke : true,
     radious : 11,
@@ -29,6 +31,7 @@ const pointStyle = { //Una ves declarada una variable como const su valor no pue
     fillOpacity : 1,
 }
 
+////////////  PARA ESTILO DE MARCADORES CUANDO SE HACE CLIC SOBRE ELLOS /////////////////
 const selectedPointStyle = {
     stroke : true,
     radious : 11,
@@ -39,8 +42,16 @@ const selectedPointStyle = {
     fillOpacity : 1,
 }
 
+////////////// PARA MANEJAR EL ESTILO DEL MARCADOR CUANDO SE HACE ZOOM OUT ////////////
+const transparentPointStyle = {
+    color : 'transparent',
+    opacity : 1,
+    fillColor : 'transparent',
+    fillOpacity : 1,
+}
 
 
+//////////////   PARA MANEJAR ESTILO AL HACER CLIC EN LOS MARCADORES DE LUGAR ///////////////
 stylesGeoJSONOnClick = (lugares) =>{
     let lastClickedFeature; // Cuando se define una variable como let, puede ser usada solo localmente dentro del margen{} declarada
     lugares.on ('click', e =>{
@@ -50,7 +61,23 @@ stylesGeoJSONOnClick = (lugares) =>{
         lastClickedFeature = e.layer
         e.layer.setStyle(selectedPointStyle)
     })
+}
 
+////////////// PARA MANEJAR VISIBILIDAD DE LOS MARCADORES REDONDOS AL HACER ZOOM //////////////
+const zoomMarker = 14;
+stylesGeoJSONOnZoom = (lugares) =>{
+    map.on('zoomend', () => {
+        const zoom = map.getZoom();
+    
+        lugares.eachLayer(layer => {
+            if (layer instanceof L.CircleMarker && zoom < zoomMarker) {
+                layer.setStyle(transparentPointStyle);
+            } else if(layer instanceof L.CircleMarker && zoom >= zoomMarker){
+            
+                layer.setStyle(pointStyle)
+            }
+        });
+    })
 }
 
 //Agregando las tres ciudades mas cercanas al lugar seleccionado
@@ -103,57 +130,32 @@ onEachFeatureHandler = (feature, layer) =>{ //feature me permite manejar los ele
 }
 
 
-
-
-////////////// latlng no esta siendo reconocida
-const zoomMarker = 16;
-circleMarkerHandler = ( latlng, pointStyle) => {
-        const zoom = map.getZoom();
-        let todosMarcadores;
-        if (zoomMarker >= zoom && todosMarcadores){
-            map.removeLayer(todosMarcadores)
-        }
-
-            todosMarcadores = L.geoJSON(json,{
-            pointToLayer: function(feature, latlng){
-                return L.circleMarker(latlng, pointStyle)
-            }
-        })//addTo(map)
-}
-
-
+////////////// Agregando lugares con circleMarker al mapa
 
 const addAllPlacesToMap = (json) => {
     let lugares = L.geoJSON(json, { // L.geoJSON es una funcion de la biblioteca L debe ser declarado sin error ortografico
         pointToLayer: function(feature, latlng){
+
             return L.circleMarker (latlng, pointStyle) //circleMarker es una funcion de la biblioteca L
-            const zoom = map.getZoom();
-            let misMarcadores =  L.circleMarker (latlng, pointStyle);
-            if ( zoom < zoomMarker  ){
-                map.removeLayer(misMarcadores)
-            } else if(zoom >= zoomMarker){
-            
-             }
+             
         },
         onEachFeature: (feature,layer) => { //onEachFeature es una una funcion de la biblioteca Leaflet
             onEachFeatureHandler(feature, layer)
-            //circleMarkerHandler(layer, pointStyle)
         }
     }).addTo(map)
- 
+
+
     stylesGeoJSONOnClick(lugares); 
+    stylesGeoJSONOnZoom(lugares); //Para volver invisible circlemarker al hacer zoom out
     
 }
-
 
 
 fetchGetRequest('api/v1/lugares', addAllPlacesToMap)
 
 
 
-//SECCION AGREGAR GEOJSON ESTATICO A MAPA
-
-var layername;
+//////////////// SECCION AGREGAR GEOJSON ESTATICO A MAPA///////////////
  function fetchData(url, layername){
     fetch(url, {
       method:'GET',
@@ -174,9 +176,8 @@ var layername;
       }) 
   }
 
-
+///////////// FUNCION PARA AGREGAR ARCHIVO GEOJSON A MAPA////////////////
 function addGeoJSONData(data, layername){
-      
     let geoJSONLayer = L.geoJSON(data,{
             onEachFeature: function (feature, layer) {
             // Bind a label directly on top of the geometric feature 
@@ -196,6 +197,8 @@ function addGeoJSONData(data, layername){
         return layer.feature.properties.name;
     })
 
+
+/////////// CONSTANTE PARA MANEJAR EL ESTILO DE LOS POLIGONOS AGREGADOS EN GEOJSON ///////////
     const minZoomToShow = 16;
     //Polygon Style
     var PolygonStyle = {
@@ -204,6 +207,7 @@ function addGeoJSONData(data, layername){
     fillOpacity: 0.5
     }
 
+////////////// ESTA FUNCION MANEJA LA ETIQUETA EN EL POLIGONO BASADA EN EL NIVEL DE ZOOM
     function updateGeoJSONTooltips() {
         const zoom = map.getZoom();
         geoJSONLayer.eachLayer(layer => {
@@ -217,6 +221,7 @@ function addGeoJSONData(data, layername){
         });
     }
 
+////////////////// ESTA FUNCION MANEJA LA VISIBILIDAD Y ESTILO DE POLIGONOS BASADO EN NIVEL DE ZOOM 
     function updatePolygonStyle() {
         const zoom = map.getZoom();
         if (zoom < minZoomToShow) {
@@ -230,13 +235,14 @@ function addGeoJSONData(data, layername){
         }
     }
 
+/////////////// AQUI SE INVOCAN LAS FUNCIONES CREADAS /////////////////
      map.on('zoomend', updatePolygonStyle);
      map.on('zoomend', updateGeoJSONTooltips);
 
-     //updateGeoJSONTooltips();
+ //updateGeoJSONTooltips();
 
 
-}           //End of ADDGeoJson function
+}///////////////////////////   End of ADDGeoJson function ////////////////////
 
 
 
@@ -266,6 +272,11 @@ fetchData('./static/geojson/comunidad.GeoJSON', 'MapaGirasoles')
 
 
 }
+
+
+
+
+
 
 /*const miAtribucion =  L.control.attribution ({ // Para mover mensaje de atribucion del mapa(creditos)
   position: 'bottomleft'
